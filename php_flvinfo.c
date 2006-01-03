@@ -175,7 +175,6 @@ PHP_FUNCTION(get_flv_dimensions)
 	int height = 0;
 	AVFormatContext *pFormatCtx;
 	AVCodecContext *enc;
-	AVCodec *p;
 	int i;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
@@ -197,14 +196,15 @@ PHP_FUNCTION(get_flv_dimensions)
         AVStream *st = pFormatCtx->streams[i];
 		enc = &st->codec;
 
-		switch(enc->codec_type) {
-		case CODEC_TYPE_VIDEO:
-			p = avcodec_find_decoder(enc->codec_id);
-			printf("codec=%s, id=%d,%d\n", p->name, CODEC_ID_FLV1, enc->codec_id);
+		// skip non flv files
+		if (enc->codec_id != CODEC_ID_FLV1) {
+			continue;
+		}
 
+		// we're not interested of audio stream
+		if (enc->codec_type == CODEC_TYPE_VIDEO) {
 			if (enc->width) {
 				width = enc->width;
-				printf("width=%d\n", enc->width);
 			}
 			if (enc->height) {
 				height = enc->height;
