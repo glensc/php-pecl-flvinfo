@@ -33,4 +33,5 @@ if test "$PHP_FLVINFO" != "no"; then
 
   PHP_SUBST(FLVINFO_SHARED_LIBADD)
   PHP_NEW_EXTENSION(flvinfo, php_flvinfo.c, $ext_shared)
+  PHP_ADD_MAKEFILE_FRAGMENT
 fi
