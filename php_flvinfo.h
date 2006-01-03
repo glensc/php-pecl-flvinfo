@@ -40,8 +40,7 @@ PHP_RINIT_FUNCTION(flvinfo);
 PHP_RSHUTDOWN_FUNCTION(flvinfo);
 PHP_MINFO_FUNCTION(flvinfo);
 
-PHP_FUNCTION(confirm_flvinfo_compiled);	/* For testing, remove later. */
-PHP_FUNCTION(flvinfo_file);
+PHP_FUNCTION(get_flv_dimensions);
 
 /* 
   	Declare any global variables you may need between the BEGIN

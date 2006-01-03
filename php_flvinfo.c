@@ -41,8 +41,7 @@ static int le_flvinfo;
  * Every user visible function must have an entry in flvinfo_functions[].
  */
 function_entry flvinfo_functions[] = {
-	PHP_FE(confirm_flvinfo_compiled,	NULL)		/* For testing, remove later. */
-	PHP_FE(flvinfo_file,	NULL)
+	PHP_FE(get_flv_dimensions,	NULL)
 	{NULL, NULL, NULL}	/* Must be the last line in flvinfo_functions[] */
 };
 /* }}} */
@@ -152,42 +151,15 @@ PHP_MINFO_FUNCTION(flvinfo)
 /* }}} */
 
 
-/* Remove the following function when you have succesfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
 /* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_flvinfo_compiled(string arg)
+/* {{{ proto array get_flv_dimensions(string filename)
    Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_flvinfo_compiled)
+PHP_FUNCTION(get_flv_dimensions)
 {
-	char *arg = NULL;
-	int arg_len, len;
-	char string[256];
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
-
-	len = sprintf(string, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "flvinfo", arg);
-	RETURN_STRINGL(string, len, 1);
-}
-/* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and 
-   unfold functions in source code. See the corresponding marks just before 
-   function definition, where the functions purpose is also documented. Please 
-   follow this convention for the convenience of others editing your code.
-*/
-
-/* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_flvinfo_compiled(string arg)
-   Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(flvinfo_file)
-{
-	char *arg = NULL;
-	int arg_len, len;
-	char string[256];
-
+	char *arg;
+	int arg_len;
+	int width = 0;
+	int height = 0;
 	AVFormatContext *pFormatCtx;
 	AVCodecContext *enc;
 	AVCodec *p;
@@ -196,8 +168,6 @@ PHP_FUNCTION(flvinfo_file)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
 		return;
 	}
-
-	len = sprintf(string, "tore %s, %s", "flvinfo", arg);
 
     // Open video file
     if (av_open_input_file(&pFormatCtx, arg, NULL, 0, NULL) != 0) {
@@ -217,13 +187,14 @@ PHP_FUNCTION(flvinfo_file)
 		switch(enc->codec_type) {
 		case CODEC_TYPE_VIDEO:
 			p = avcodec_find_decoder(enc->codec_id);
-			printf("codec=%s\n", p->name);
+			printf("codec=%s, id=%d,%d\n", p->name, CODEC_ID_FLV1, enc->codec_id);
 
 			if (enc->width) {
+				width = enc->width;
 				printf("width=%d\n", enc->width);
 			}
 			if (enc->height) {
-				printf("height=%d\n", enc->height);
+				height = enc->height;
 			}
 		}
     }
@@ -231,8 +202,13 @@ PHP_FUNCTION(flvinfo_file)
     // Close the video file
     av_close_input_file(pFormatCtx);
 
-
-	RETURN_STRINGL(string, len, 1);
+	if (width && height) {
+		if (array_init(return_value) == FAILURE) {
+			RETURN_FALSE;
+		}
+		add_next_index_long(return_value, width);
+		add_next_index_long(return_value, height);
+	}
 }
 /* }}} */
 

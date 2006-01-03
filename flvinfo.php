@@ -1,5 +1,5 @@
 <?php
-$br = (php_sapi_name() == "cli")? "":"<br>";
+$br = (php_sapi_name() == 'cli') ? '' : '<br>';
 
 if(!extension_loaded('flvinfo')) {
 	dl('flvinfo.' . PHP_SHLIB_SUFFIX);
@@ -11,15 +11,12 @@ foreach($functions as $func) {
     echo $func."$br\n";
 }
 echo "$br\n";
-$function = 'confirm_' . $module . '_compiled';
-if (extension_loaded($module)) {
-	$str = $function($module);
-} else {
-	$str = "Module $module is not compiled into PHP";
-}
-echo "$str\n";
 
-$res = flvinfo_file("fall2005.flv");
-echo "\n\nflvinfo_file=$res\n";
+$res = get_flv_dimensions("fall2005.flv");
+if (!isset($res)) {
+	echo "res is not set\n";
+}
+echo "res=[$res]\n";
+print_r($res);
 
 ?>
