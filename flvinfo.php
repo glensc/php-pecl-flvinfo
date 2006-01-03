@@ -18,4 +18,8 @@ if (extension_loaded($module)) {
 	$str = "Module $module is not compiled into PHP";
 }
 echo "$str\n";
+
+$res = flvinfo_file("fall2005.flv");
+echo "flvinfo_file=$res\n";
+
 ?>
