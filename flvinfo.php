@@ -20,6 +20,6 @@ if (extension_loaded($module)) {
 echo "$str\n";
 
 $res = flvinfo_file("fall2005.flv");
-echo "flvinfo_file=$res\n";
+echo "\n\nflvinfo_file=$res\n";
 
 ?>
