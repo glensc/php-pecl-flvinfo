@@ -100,8 +100,21 @@ PHP_MINIT_FUNCTION(flvinfo)
 	REGISTER_INI_ENTRIES();
 	*/
 
+#define	REGISTER_ONLY_FLV 1
+
+#ifdef REGISTER_ONLY_FLV
+    avcodec_init();
+    register_avcodec(&flv_decoder);
+
+    // Register flv decoder
+    flvdec_init();
+
+    /* file protocols */
+    register_protocol(&file_protocol);
+#else
     // Register all formats and codecs
     av_register_all();
+#endif
 
 	return SUCCESS;
 }
