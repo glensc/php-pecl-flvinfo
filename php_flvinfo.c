@@ -22,6 +22,8 @@
 #include "config.h"
 #endif
 
+#include <avformat.h>
+
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
@@ -40,6 +42,7 @@ static int le_flvinfo;
  */
 function_entry flvinfo_functions[] = {
 	PHP_FE(confirm_flvinfo_compiled,	NULL)		/* For testing, remove later. */
+	PHP_FE(flvinfo_file,	NULL)
 	{NULL, NULL, NULL}	/* Must be the last line in flvinfo_functions[] */
 };
 /* }}} */
@@ -97,6 +100,10 @@ PHP_MINIT_FUNCTION(flvinfo)
 	ZEND_INIT_MODULE_GLOBALS(flvinfo, php_flvinfo_init_globals, NULL);
 	REGISTER_INI_ENTRIES();
 	*/
+
+    // Register all formats and codecs
+    av_register_all();
+
 	return SUCCESS;
 }
 /* }}} */
@@ -171,6 +178,63 @@ PHP_FUNCTION(confirm_flvinfo_compiled)
    function definition, where the functions purpose is also documented. Please 
    follow this convention for the convenience of others editing your code.
 */
+
+/* Every user-visible function in PHP should document itself in the source */
+/* {{{ proto string confirm_flvinfo_compiled(string arg)
+   Return a string to confirm that the module is compiled in */
+PHP_FUNCTION(flvinfo_file)
+{
+	char *arg = NULL;
+	int arg_len, len;
+	char string[256];
+
+	AVFormatContext *pFormatCtx;
+	AVCodecContext *enc;
+	AVCodec *p;
+	int i;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
+		return;
+	}
+
+	len = sprintf(string, "tore %s, %s", "flvinfo", arg);
+
+    // Open video file
+    if (av_open_input_file(&pFormatCtx, arg, NULL, 0, NULL) != 0) {
+        return; // Couldn't open file
+	}
+
+    // Retrieve stream information
+    if (av_find_stream_info(pFormatCtx) < 0) {
+        return; // Couldn't find stream information
+	}
+
+    // Dump information about file onto standard error
+    for (i = 0; i < pFormatCtx->nb_streams; i++) {
+        AVStream *st = pFormatCtx->streams[i];
+		enc = &st->codec;
+
+		switch(enc->codec_type) {
+		case CODEC_TYPE_VIDEO:
+			p = avcodec_find_decoder(enc->codec_id);
+			printf("codec=%s\n", p->name);
+
+			if (enc->width) {
+				printf("width=%d\n", enc->width);
+			}
+			if (enc->height) {
+				printf("height=%d\n", enc->height);
+			}
+		}
+    }
+
+    // Close the video file
+    av_close_input_file(pFormatCtx);
+
+
+	RETURN_STRINGL(string, len, 1);
+}
+/* }}} */
 
 
 /*

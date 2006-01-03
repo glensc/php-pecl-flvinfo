@@ -41,6 +41,7 @@ PHP_RSHUTDOWN_FUNCTION(flvinfo);
 PHP_MINFO_FUNCTION(flvinfo);
 
 PHP_FUNCTION(confirm_flvinfo_compiled);	/* For testing, remove later. */
+PHP_FUNCTION(flvinfo_file);
 
 /* 
   	Declare any global variables you may need between the BEGIN
