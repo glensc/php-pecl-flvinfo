@@ -5,3 +5,6 @@ flvinfo: flvinfo.c
 Makefile: Makefile.frag
 	cp $< $@
 	./config.status --recheck
+
+test1: $(all_targets)
+	php -dextension_dir=modules flvinfo.php
