@@ -183,12 +183,14 @@ PHP_FUNCTION(get_flv_dimensions)
 
     // Open video file
     if (av_open_input_file(&pFormatCtx, arg, NULL, 0, NULL) != 0) {
-        return; // Couldn't open file
+		zend_error(E_NOTICE, "av_open_input_file: Couldn't open file %s", arg);
+        return;
 	}
 
     // Retrieve stream information
     if (av_find_stream_info(pFormatCtx) < 0) {
-        return; // Couldn't find stream information
+		zend_error(E_NOTICE, "av_find_stream_info: Couldn't find stream information");
+        return;
 	}
 
     // Dump information about file onto standard error
