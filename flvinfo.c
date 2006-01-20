@@ -32,13 +32,14 @@ AVCodec *p;
 
 		switch(enc->codec_type) {
 		case CODEC_TYPE_VIDEO:
-			printf("codec=%s\n", p->name);
+			printf("%s: codec=%s", url, p->name);
 			if (enc->width) {
-				printf("width=%d\n", enc->width);
+				printf(" width=%d", enc->width);
 			}
 			if (enc->height) {
-				printf("height=%d\n", enc->height);
+				printf(" height=%d", enc->height);
 			}
+			printf("\n", enc->height);
 		}
     }
 
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
 
 AVFormatContext *pFormatCtx;
 char *file;
+int i;
 
 	if (argc < 2) {
 		return -1; // no file specified
@@ -57,21 +59,23 @@ char *file;
     // Register all formats and codecs
     av_register_all();
 
-    // Open video file
-    if (av_open_input_file(&pFormatCtx, argv[1], NULL, 0, NULL) != 0) {
-        return -1; // Couldn't open file
+	for (i = 1; i < argc; i++) {
+		// Open video file
+		if (av_open_input_file(&pFormatCtx, argv[i], NULL, 0, NULL) != 0) {
+			return -1; // Couldn't open file
+		}
+
+		// Retrieve stream information
+		if (av_find_stream_info(pFormatCtx) < 0) {
+			return -1; // Couldn't find stream information
+		}
+
+		// Dump information about file onto standard error
+		dump_streams(pFormatCtx, 0, argv[i], 0);
+
+		// Close the video file
+		av_close_input_file(pFormatCtx);
 	}
-
-    // Retrieve stream information
-    if (av_find_stream_info(pFormatCtx) < 0) {
-        return -1; // Couldn't find stream information
-	}
-
-    // Dump information about file onto standard error
-    dump_streams(pFormatCtx, 0, argv[1], 0);
-
-    // Close the video file
-    av_close_input_file(pFormatCtx);
 
     return 0;
 }
