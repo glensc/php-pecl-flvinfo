@@ -1,5 +1,5 @@
 PACKAGE_NAME = flvinfo
-PACKAGE_VERSION = 0.0.2
+PACKAGE_VERSION = 0.0.3
 PACKAGE_FILES_STD = CREDITS EXPERIMENTAL config.m4 Makefile.frag package.xml
 PACKAGE_FILES_SOURCES = flvinfo.c flvinfo.php php_flvinfo.c php_flvinfo.h
 PACKAGE_FILES_TESTS = tests
