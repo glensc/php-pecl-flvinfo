@@ -29,6 +29,10 @@ AVCodec *p;
         AVStream *st = ic->streams[i];
 		enc = &st->codec;
 		p = avcodec_find_decoder(enc->codec_id);
+		if (p == NULL) {
+			fprintf(stderr, "Unknown codec %d of %d!\n", enc->codec_id, enc->codec_type);
+			continue;
+		}
 
 		switch(enc->codec_type) {
 		case CODEC_TYPE_VIDEO:
