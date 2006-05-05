@@ -200,6 +200,14 @@ PHP_FUNCTION(get_flv_dimensions)
 
 		// skip non flv files
 		if (enc->codec_id != CODEC_ID_FLV1) {
+			AVCodec *p = avcodec_find_decoder(enc->codec_id);
+#if DEBUG
+			if (p) {
+				zend_error(E_NOTICE, "flvinfo: skip non-flv codec: #%d: ", enc->codec_id, p->name);
+			} else {
+				zend_error(E_NOTICE, "flvinfo: skip unknown codec: #%d", enc->codec_id);
+			}
+#endif
 			continue;
 		}
 
@@ -217,13 +225,17 @@ PHP_FUNCTION(get_flv_dimensions)
     // Close the video file
     av_close_input_file(pFormatCtx);
 
-	if (width && height) {
-		if (array_init(return_value) == FAILURE) {
-			RETURN_FALSE;
-		}
-		add_next_index_long(return_value, width);
-		add_next_index_long(return_value, height);
+	if (!width && !height) {
+		zend_error(E_NOTICE, "flvinfo: flv was not detected");
+		RETURN_FALSE;
 	}
+
+	if (array_init(return_value) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	add_next_index_long(return_value, width);
+	add_next_index_long(return_value, height);
 }
 /* }}} */
 
