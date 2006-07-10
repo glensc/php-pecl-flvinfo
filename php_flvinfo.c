@@ -196,7 +196,7 @@ PHP_FUNCTION(get_flv_dimensions)
     // Dump information about file onto standard error
     for (i = 0; i < pFormatCtx->nb_streams; i++) {
         AVStream *st = pFormatCtx->streams[i];
-		enc = &st->codec;
+		enc = st->codec;
 
 		// skip non flv files
 		if (enc->codec_id != CODEC_ID_FLV1) {
