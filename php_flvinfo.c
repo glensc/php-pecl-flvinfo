@@ -100,7 +100,7 @@ PHP_MINIT_FUNCTION(flvinfo)
 	REGISTER_INI_ENTRIES();
 	*/
 
-#define	REGISTER_ONLY_FLV 1
+//#define	REGISTER_ONLY_FLV 1
 
 #ifdef REGISTER_ONLY_FLV
     avcodec_init();
@@ -114,6 +114,19 @@ PHP_MINIT_FUNCTION(flvinfo)
 #else
     // Register all formats and codecs
     av_register_all();
+#endif
+
+#if HAVE_CODEC_VP3
+	REGISTER_LONG_CONSTANT("FLV_CODEC_VP3", HAVE_CODEC_VP3, CONST_CS | CONST_PERSISTENT);
+#endif
+#if HAVE_CODEC_VP5
+	REGISTER_LONG_CONSTANT("FLV_CODEC_VP5", HAVE_CODEC_VP5, CONST_CS | CONST_PERSISTENT);
+#endif
+#if HAVE_CODEC_VP6
+	REGISTER_LONG_CONSTANT("FLV_CODEC_VP6", HAVE_CODEC_VP6, CONST_CS | CONST_PERSISTENT);
+#endif
+#if HAVE_CODEC_VP6F
+	REGISTER_LONG_CONSTANT("FLV_CODEC_VP6F", HAVE_CODEC_VP6F, CONST_CS | CONST_PERSISTENT);
 #endif
 
 	return SUCCESS;
@@ -199,9 +212,16 @@ PHP_FUNCTION(get_flv_dimensions)
 		enc = st->codec;
 
 		// skip non flv files
-		if (enc->codec_id != CODEC_ID_FLV1) {
-			AVCodec *p = avcodec_find_decoder(enc->codec_id);
+		switch (enc->codec_id) {
+		case CODEC_ID_FLV1:
+		case CODEC_ID_VP3:
+		case CODEC_ID_VP5:
+		case CODEC_ID_VP6:
+		case CODEC_ID_VP6F:
+			break;
+		default:
 #if DEBUG
+			AVCodec *p = avcodec_find_decoder(enc->codec_id);
 			if (p) {
 				zend_error(E_NOTICE, "flvinfo: skip non-flv codec: #%d: ", enc->codec_id, p->name);
 			} else {
