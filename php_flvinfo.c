@@ -235,16 +235,16 @@ PHP_FUNCTION(get_flv_dimensions)
 		// skip non flv files
 		switch (enc->codec_id) {
 		case CODEC_ID_FLV1:
-#if HAVE_CODEC_VP3
+#if CONFIG_VP3_DECODER
 		case CODEC_ID_VP3:
 #endif
-#if HAVE_CODEC_VP5
+#if CONFIG_VP5_DECODER
 		case CODEC_ID_VP5:
 #endif
-#if HAVE_CODEC_VP6
+#if CONFIG_VP6_DECODER
 		case CODEC_ID_VP6:
 #endif
-#if HAVE_CODEC_VP6F
+#if CONFIG_VP6F_DECODER
 		case CODEC_ID_VP6F:
 #endif
 			break;
