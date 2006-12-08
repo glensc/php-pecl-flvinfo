@@ -22,7 +22,10 @@
 #include "config.h"
 #endif
 
+#include <ffmpeg/config.h>
 #include <avformat.h>
+#include <avcodec.h>
+#include <allformats.h>
 
 #include "php.h"
 #include "php_ini.h"
@@ -100,14 +103,32 @@ PHP_MINIT_FUNCTION(flvinfo)
 	REGISTER_INI_ENTRIES();
 	*/
 
-//#define	REGISTER_ONLY_FLV 1
+#define	REGISTER_ONLY_FLV 1
 
 #ifdef REGISTER_ONLY_FLV
     avcodec_init();
-    register_avcodec(&flv_decoder);
 
     // Register flv decoder
-    flvdec_init();
+	// from libavcodec/allcodecs.c
+#define REGISTER_ENCODER(X,x) \
+	if (ENABLE_##X##_ENCODER)  register_avcodec(&x##_encoder)
+#define REGISTER_DECODER(X,x) \
+	if (ENABLE_##X##_DECODER)  register_avcodec(&x##_decoder)
+#define REGISTER_ENCDEC(X,x)  REGISTER_ENCODER(X,x); REGISTER_DECODER(X,x)
+
+	REGISTER_ENCDEC(FLV, flv);
+	REGISTER_DECODER(VP3, vp3);
+	REGISTER_DECODER(VP5, vp5);
+	REGISTER_DECODER(VP6, vp6);
+	REGISTER_DECODER(VP6F, vp6f);
+
+	// from libavformat/allformats.c
+#define REGISTER_MUXER(X,x) \
+	if (ENABLE_##X##_MUXER)   av_register_output_format(&x##_muxer)
+#define REGISTER_DEMUXER(X,x) \
+	if (ENABLE_##X##_DEMUXER) av_register_input_format(&x##_demuxer)
+#define REGISTER_MUXDEMUX(X,x)  REGISTER_MUXER(X,x); REGISTER_DEMUXER(X,x)
+	REGISTER_MUXDEMUX(FLV, flv);
 
     /* file protocols */
     register_protocol(&file_protocol);
@@ -214,10 +235,18 @@ PHP_FUNCTION(get_flv_dimensions)
 		// skip non flv files
 		switch (enc->codec_id) {
 		case CODEC_ID_FLV1:
+#if HAVE_CODEC_VP3
 		case CODEC_ID_VP3:
+#endif
+#if HAVE_CODEC_VP5
 		case CODEC_ID_VP5:
+#endif
+#if HAVE_CODEC_VP6
 		case CODEC_ID_VP6:
+#endif
+#if HAVE_CODEC_VP6F
 		case CODEC_ID_VP6F:
+#endif
 			break;
 		default:
 #if DEBUG
