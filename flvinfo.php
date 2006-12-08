@@ -7,6 +7,11 @@ if (!extension_loaded('flvinfo')) {
 	dl('flvinfo.' . PHP_SHLIB_SUFFIX);
 }
 
+printf("FLV_CODEC_VP3: %s\n", defined('FLV_CODEC_VP3') ? 'yes' : 'no');
+printf("FLV_CODEC_VP5: %s\n", defined('FLV_CODEC_VP5') ? 'yes' : 'no');
+printf("FLV_CODEC_VP6: %s\n", defined('FLV_CODEC_VP6') ? 'yes' : 'no');
+printf("FLV_CODEC_VP6F: %s\n", defined('FLV_CODEC_VP6F') ? 'yes' : 'no');
+
 $res = get_flv_dimensions($file);
 if (!isset($res)) {
 	echo "res is not set\n";
