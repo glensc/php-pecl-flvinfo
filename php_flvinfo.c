@@ -39,12 +39,22 @@ ZEND_DECLARE_MODULE_GLOBALS(flvinfo)
 /* True global resources - no need for thread safety here */
 static int le_flvinfo;
 
+/* {{{ arginfo */
+/* {{{ get_flv_dimensions */
+static
+ZEND_BEGIN_ARG_INFO(arginfo_get_flv_dimensions, 0)
+    ZEND_ARG_INFO(0, filename)
+ZEND_END_ARG_INFO()
+/* }}} */
+/* }}} */
+
+
 /* {{{ flvinfo_functions[]
  *
  * Every user visible function must have an entry in flvinfo_functions[].
  */
 function_entry flvinfo_functions[] = {
-	PHP_FE(get_flv_dimensions,	NULL)
+    PHP_FE(get_flv_dimensions,	arginfo_get_flv_dimensions)
 	{NULL, NULL, NULL}	/* Must be the last line in flvinfo_functions[] */
 };
 /* }}} */
@@ -56,7 +66,7 @@ zend_module_entry flvinfo_module_entry = {
 	STANDARD_MODULE_HEADER,
 #endif
 	"flvinfo",
-	flvinfo_functions,
+    flvinfo_functions,		/* function list */
 	PHP_MINIT(flvinfo),
 	PHP_MSHUTDOWN(flvinfo),
 	PHP_RINIT(flvinfo),		/* Replace with NULL if there's nothing to do at request start */
@@ -196,7 +206,6 @@ PHP_MINFO_FUNCTION(flvinfo)
 	*/
 }
 /* }}} */
-
 
 /* Every user-visible function in PHP should document itself in the source */
 /* {{{ proto array get_flv_dimensions(string filename)
