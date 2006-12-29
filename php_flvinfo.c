@@ -40,12 +40,16 @@ ZEND_DECLARE_MODULE_GLOBALS(flvinfo)
 static int le_flvinfo;
 
 /* {{{ arginfo */
+#ifdef ZEND_BEGIN_ARG_INFO
 /* {{{ get_flv_dimensions */
 static
 ZEND_BEGIN_ARG_INFO(arginfo_get_flv_dimensions, 0)
     ZEND_ARG_INFO(0, filename)
 ZEND_END_ARG_INFO()
 /* }}} */
+#else
+#define arginfo_get_flv_dimensions NULL
+#endif
 /* }}} */
 
 
