@@ -91,8 +91,8 @@ ZEND_GET_MODULE(flvinfo)
  */
 /* Remove comments and fill if you need to have entries in php.ini
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("flvinfo.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_flvinfo_globals, flvinfo_globals)
-    STD_PHP_INI_ENTRY("flvinfo.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_flvinfo_globals, flvinfo_globals)
+	STD_PHP_INI_ENTRY("flvinfo.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_flvinfo_globals, flvinfo_globals)
+	STD_PHP_INI_ENTRY("flvinfo.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_flvinfo_globals, flvinfo_globals)
 PHP_INI_END()
 */
 /* }}} */
@@ -120,9 +120,9 @@ PHP_MINIT_FUNCTION(flvinfo)
 #define	REGISTER_ONLY_FLV 1
 
 #ifdef REGISTER_ONLY_FLV
-    avcodec_init();
+	avcodec_init();
 
-    // Register flv decoder
+	// Register flv decoder
 	// from libavcodec/allcodecs.c
 #define REGISTER_ENCODER(X,x) \
 	if (ENABLE_##X##_ENCODER)  register_avcodec(&x##_encoder)
@@ -144,11 +144,11 @@ PHP_MINIT_FUNCTION(flvinfo)
 #define REGISTER_MUXDEMUX(X,x)  REGISTER_MUXER(X,x); REGISTER_DEMUXER(X,x)
 	REGISTER_MUXDEMUX(FLV, flv);
 
-    /* file protocols */
-    register_protocol(&file_protocol);
+	/* file protocols */
+	register_protocol(&file_protocol);
 #else
-    // Register all formats and codecs
-    av_register_all();
+	// Register all formats and codecs
+	av_register_all();
 #endif
 
 #if CONFIG_VP3_DECODER
@@ -228,21 +228,21 @@ PHP_FUNCTION(get_flv_dimensions)
 		return;
 	}
 
-    // Open video file
-    if (av_open_input_file(&pFormatCtx, arg, NULL, 0, NULL) != 0) {
+	// Open video file
+	if (av_open_input_file(&pFormatCtx, arg, NULL, 0, NULL) != 0) {
 		zend_error(E_NOTICE, "av_open_input_file: Couldn't open file %s", arg);
-        return;
+		return;
 	}
 
-    // Retrieve stream information
-    if (av_find_stream_info(pFormatCtx) < 0) {
+	// Retrieve stream information
+	if (av_find_stream_info(pFormatCtx) < 0) {
 		zend_error(E_NOTICE, "av_find_stream_info: Couldn't find stream information");
-        return;
+		return;
 	}
 
-    // Dump information about file onto standard error
-    for (i = 0; i < pFormatCtx->nb_streams; i++) {
-        AVStream *st = pFormatCtx->streams[i];
+	// Dump information about file onto standard error
+	for (i = 0; i < pFormatCtx->nb_streams; i++) {
+		AVStream *st = pFormatCtx->streams[i];
 		enc = st->codec;
 
 		// skip non flv files
@@ -282,10 +282,10 @@ PHP_FUNCTION(get_flv_dimensions)
 				height = enc->height;
 			}
 		}
-    }
+	}
 
-    // Close the video file
-    av_close_input_file(pFormatCtx);
+	// Close the video file
+	av_close_input_file(pFormatCtx);
 
 	if (!width && !height) {
 		zend_error(E_NOTICE, "flvinfo: flv was not detected");
