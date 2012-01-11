@@ -25,7 +25,6 @@
 #include <ffmpeg/config.h>
 #include <avformat.h>
 #include <avcodec.h>
-#include <allformats.h>
 
 #include "php.h"
 #include "php_ini.h"
@@ -42,7 +41,6 @@ static int le_flvinfo;
 /* {{{ arginfo */
 #ifdef ZEND_BEGIN_ARG_INFO
 /* {{{ get_flv_dimensions */
-static
 ZEND_BEGIN_ARG_INFO(arginfo_get_flv_dimensions, 0)
     ZEND_ARG_INFO(0, filename)
 ZEND_END_ARG_INFO()
@@ -124,28 +122,37 @@ PHP_MINIT_FUNCTION(flvinfo)
 
 	// Register flv decoder
 	// from libavcodec/allcodecs.c
-#define REGISTER_ENCODER(X,x) \
-	if (ENABLE_##X##_ENCODER)  register_avcodec(&x##_encoder)
-#define REGISTER_DECODER(X,x) \
-	if (ENABLE_##X##_DECODER)  register_avcodec(&x##_decoder)
+#define REGISTER_ENCODER(X,x) { \
+	extern AVCodec x##_encoder; \
+	if(CONFIG_##X##_ENCODER)  avcodec_register(&x##_encoder); }
+#define REGISTER_DECODER(X,x) { \
+	extern AVCodec x##_decoder; \
+	if(CONFIG_##X##_DECODER)  avcodec_register(&x##_decoder); }
 #define REGISTER_ENCDEC(X,x)  REGISTER_ENCODER(X,x); REGISTER_DECODER(X,x)
 
 	REGISTER_ENCDEC(FLV, flv);
 	REGISTER_DECODER(VP3, vp3);
 	REGISTER_DECODER(VP5, vp5);
 	REGISTER_DECODER(VP6, vp6);
+    REGISTER_DECODER(VP6A, vp6a);
 	REGISTER_DECODER(VP6F, vp6f);
 
 	// from libavformat/allformats.c
-#define REGISTER_MUXER(X,x) \
-	if (ENABLE_##X##_MUXER)   av_register_output_format(&x##_muxer)
-#define REGISTER_DEMUXER(X,x) \
-	if (ENABLE_##X##_DEMUXER) av_register_input_format(&x##_demuxer)
+#define REGISTER_MUXER(X,x) { \
+	extern AVOutputFormat x##_muxer; \
+	if(CONFIG_##X##_MUXER) av_register_output_format(&x##_muxer); }
+#define REGISTER_DEMUXER(X,x) { \
+	extern AVInputFormat x##_demuxer; \
+	if(CONFIG_##X##_DEMUXER) av_register_input_format(&x##_demuxer); }
 #define REGISTER_MUXDEMUX(X,x)  REGISTER_MUXER(X,x); REGISTER_DEMUXER(X,x)
 	REGISTER_MUXDEMUX(FLV, flv);
 
+#define REGISTER_PROTOCOL(X,x) { \
+	extern URLProtocol x##_protocol; \
+	if(CONFIG_##X##_PROTOCOL) av_register_protocol(&x##_protocol); }
+
 	/* file protocols */
-	register_protocol(&file_protocol);
+    REGISTER_PROTOCOL(FILE, file);
 #else
 	// Register all formats and codecs
 	av_register_all();
@@ -159,6 +166,9 @@ PHP_MINIT_FUNCTION(flvinfo)
 #endif
 #if CONFIG_VP6_DECODER
 	REGISTER_LONG_CONSTANT("FLV_CODEC_VP6", 1, CONST_CS | CONST_PERSISTENT);
+#endif
+#if CONFIG_VP6A_DECODER
+	REGISTER_LONG_CONSTANT("FLV_CODEC_VP6A", 1, CONST_CS | CONST_PERSISTENT);
 #endif
 #if CONFIG_VP6F_DECODER
 	REGISTER_LONG_CONSTANT("FLV_CODEC_VP6F", 1, CONST_CS | CONST_PERSISTENT);
